@@ -108,40 +108,24 @@ std::string Join(const std::string &str, const std::vector<std::string> &vect) n
 }
 
 std::string ExpandTabs(const std::string &str, int tabsize) noexcept {
-    // Check if string starts with 'b' prefix
-    bool has_b_prefix = (str.length() >= 2 && str[0] == 'b' && str[1] == '\'');
-    
-    std::string content;
-    if (has_b_prefix) {
-        content = str.substr(2, str.length() - 3); // Remove b' prefix and trailing '
-    } else {
-        content = str;
-    }
-    
-    std::string expanded;
+    std::string result;
     size_t column = 0;
     
-    for (char c : content) {
+    for (char c : str) {
         if (c == '\t') {
             size_t spaces = tabsize - (column % tabsize);
-            expanded.append(spaces, ' ');
+            result.append(spaces, ' ');
             column += spaces;
         } else {
-            expanded += c;
+            result += c;
             column++;
             if (c == '\n') {
                 column = 0;
             }
         }
     }
-    
-    // Add back the b' prefix and quotes if they were present
-    if (has_b_prefix) {
-        return "b'" + expanded + "'";
-    }
-    return expanded;
+    return result;
 }
-
 
 int EditDistance(const std::string &left, const std::string &right, bool ignorecase) noexcept {
     std::string l = ignorecase ? Lower(left) : left;
