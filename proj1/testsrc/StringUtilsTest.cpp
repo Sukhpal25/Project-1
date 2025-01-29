@@ -5,16 +5,16 @@ TEST(StringUtilsTest, SliceTest){
     
 }
 
-TEST(StringUtilsTest, Capitalize){
-    
+TEST(StringUtilsTest, Capitalize) {
+    EXPECT_EQ(StringUtils::Capitalize("hello"), "Hello");
 }
 
-TEST(StringUtilsTest, Upper){
-    
+TEST(StringUtilsTest, Upper) {
+    EXPECT_EQ(StringUtils::Upper("hello"), "HELLO");
 }
 
-TEST(StringUtilsTest, Lower){
-    
+TEST(StringUtilsTest, Lower) {
+    EXPECT_EQ(StringUtils::Lower("HELLO"), "hello");
 }
 
 TEST(StringUtilsTest, LStrip){
