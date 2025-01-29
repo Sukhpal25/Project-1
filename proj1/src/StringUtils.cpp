@@ -17,6 +17,7 @@ std::string Capitalize(const std::string &str) noexcept {
     if (str.empty()) return str;
     std::string result = str;
     result[0] = std::toupper(result[0]);
+    std::transform(result.begin() + 1, result.end(), result.begin() + 1, ::tolower);
     return result;
 }
 
@@ -63,6 +64,7 @@ std::string RJust(const std::string &str, int width, char fill) noexcept {
 }
 
 std::string Replace(const std::string &str, const std::string &old, const std::string &rep) noexcept {
+    if (old.empty()) return str;
     std::string result = str;
     size_t pos = 0;
     while ((pos = result.find(old, pos)) != std::string::npos) {
@@ -74,50 +76,77 @@ std::string Replace(const std::string &str, const std::string &old, const std::s
 
 std::vector<std::string> Split(const std::string &str, const std::string &splt) noexcept {
     std::vector<std::string> result;
-    std::stringstream ss(str);
-    std::string token;
-    while (std::getline(ss, token, splt.empty() ? ' ' : splt[0])) {
-        if (!token.empty()) result.push_back(token);
+    if (str.empty()) return result;
+    
+    if (splt.empty()) {
+        std::istringstream iss(str);
+        std::string token;
+        while (iss >> token) {
+            result.push_back(token);
+        }
+        return result;
     }
+
+    size_t start = 0;
+    size_t end = str.find(splt);
+    while (end != std::string::npos) {
+        result.push_back(str.substr(start, end - start));
+        start = end + splt.length();
+        end = str.find(splt, start);
+    }
+    result.push_back(str.substr(start));
     return result;
 }
 
 std::string Join(const std::string &str, const std::vector<std::string> &vect) noexcept {
-    std::string result;
-    for (size_t i = 0; i < vect.size(); ++i) {
-        result += vect[i];
-        if (i < vect.size() - 1) result += str;
+    if (vect.empty()) return "";
+    std::string result = vect[0];
+    for (size_t i = 1; i < vect.size(); ++i) {
+        result += str + vect[i];
     }
     return result;
 }
 
 std::string ExpandTabs(const std::string &str, int tabsize) noexcept {
     std::string result;
-    for (char ch : str) {
-        if (ch == '\t') {
-            result.append(tabsize, ' ');
+    size_t column = 0;
+    
+    for (char c : str) {
+        if (c == '\t') {
+            size_t spaces = tabsize - (column % tabsize);
+            result.append(spaces, ' ');
+            column += spaces;
         } else {
-            result += ch;
+            result += c;
+            column++;
+            if (c == '\n') {
+                column = 0;
+            }
         }
     }
     return result;
 }
 
 int EditDistance(const std::string &left, const std::string &right, bool ignorecase) noexcept {
-    int m = left.size(), n = right.size();
-    std::vector<std::vector<int>> dp(m + 1, std::vector<int>(n + 1));
-
-    for (int i = 0; i <= m; ++i) dp[i][0] = i;
-    for (int j = 0; j <= n; ++j) dp[0][j] = j;
-
-    for (int i = 1; i <= m; ++i) {
-        for (int j = 1; j <= n; ++j) {
-            int cost = (ignorecase ? tolower(left[i - 1]) != tolower(right[j - 1]) : left[i - 1] != right[j - 1]);
-            dp[i][j] = std::min({ dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost });
+    std::string l = ignorecase ? Lower(left) : left;
+    std::string r = ignorecase ? Lower(right) : right;
+    
+    std::vector<std::vector<int>> dp(l.length() + 1, std::vector<int>(r.length() + 1));
+    
+    for (size_t i = 0; i <= l.length(); i++) dp[i][0] = i;
+    for (size_t j = 0; j <= r.length(); j++) dp[0][j] = j;
+    
+    for (size_t i = 1; i <= l.length(); i++) {
+        for (size_t j = 1; j <= r.length(); j++) {
+            dp[i][j] = std::min({
+                dp[i-1][j] + 1,
+                dp[i][j-1] + 1,
+                dp[i-1][j-1] + (l[i-1] != r[j-1])
+            });
         }
     }
-
-    return dp[m][n];
+    
+    return dp[l.length()][r.length()];
 }
 
 }
