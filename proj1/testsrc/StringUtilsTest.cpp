@@ -93,6 +93,8 @@ TEST(StringUtilsTest, ExpandTabs) {
     EXPECT_EQ(StringUtils::ExpandTabs("hello\tworld", 4), "hello    world");
     EXPECT_EQ(StringUtils::ExpandTabs("\t", 4), "    ");
     EXPECT_EQ(StringUtils::ExpandTabs("hello\t", 8), "hello   ");
+    EXPECT_EQ(StringUtils::ExpandTabs("b\t123211", 0), "b123211");
+
 }
 
 TEST(StringUtilsTest, EditDistance) {
