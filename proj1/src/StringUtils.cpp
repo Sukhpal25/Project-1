@@ -123,23 +123,27 @@ std::string Join(const std::string &str, const std::vector<std::string> &vect) n
 
 // Expands tab characters into spaces, assuming a fixed tab size   
 std::string ExpandTabs(const std::string &str, int tabsize) noexcept {
-    std::string result;
-    size_t column = 0;
-    
-    for (char c : str) {
-        if (c == '\t') {
-            size_t spaces = tabsize - (column % tabsize);
-            result.append(spaces, ' ');
-            column += spaces;
-        } else {
-            result += c;
-            column++;
-            if (c == '\n') {
-                column = 0;
+    std::string res;
+    int col = 0;  // Current column position
+    if (tabsize == 0) {
+        for (char c : str) {
+            if (c != '\t') {  // remove tabs completely
+                res += c;
             }
         }
+        return res;
     }
-    return result;
+    for (char c : str) {
+        if (c == '\t') {
+            int spaces = tabsize - (col % tabsize);  // calc. spaces needed to align
+            col += spaces;
+            res.append(spaces, ' ');
+        } else {
+            res += c;
+            col++;
+        }
+    }
+    return res;
 }
 
 // Computes the Levenshtein edit distance between two strings
